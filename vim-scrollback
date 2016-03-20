@@ -119,6 +119,12 @@ my $DEBUG = 1;
 my $DEBUG_FILE = '/tmp/urxvt_vim_scrollback.log';
 my $DEBUG_FH;
 
+my $PREVIOUS_WORD_KEY = 'q';
+my $NEXT_WORD_KEY = 'w';
+my $END_OF_WORD_KEY = 'e';
+my $BEGINNING_OF_LINE_KEY = 'Q';
+my $END_OF_LINE_KEY = 'W';
+
 # copied from matcher
 my $url =
    qr{
@@ -468,7 +474,7 @@ sub key_press_normal {
             $self->move_cursor($event, $lnum, ++$cnum);
          }
       }
-   } elsif ($string eq "0") {
+   } elsif ($string eq $BEGINNING_OF_LINE_KEY) {
       my ($lnum, $cnum) = $self->screen_cur();
       my $line = $self->line($lnum);
       $self->move_cursor($event, $line->coord_of(0));
@@ -479,7 +485,7 @@ sub key_press_normal {
       $ltrimmed =~ s/^\s+//;
       my $offset = (length($line->t) - length($ltrimmed));
       $self->move_cursor($event, $line->coord_of(0 + $offset));
-   } elsif ($string eq '$') {
+   } elsif ($string eq $END_OF_LINE_KEY) {
       my ($lnum, $cnum) = $self->screen_cur();
       my $line = $self->line($lnum);
       $self->move_cursor($event, $line->coord_of($line->l - 1));
@@ -509,7 +515,7 @@ sub key_press_normal {
       my $row = $lnum - $self->nrow + 1;
       $row = $row > $self->top_row ? $row : $self->top_row;
       $self->move_cursor($event, $row, $cnum);
-   } elsif ($string eq "w" or $string eq "e") {
+   } elsif ($string eq $NEXT_WORD_KEY or $string eq $END_OF_WORD_KEY) {
       my $pattern = $string eq "w" ? '\W\w' : '\w\W';
       my $adj = $string eq "w" ? 0 : -1;
       for(my $ii = 0; $ii < $self->{repeat}; $ii++){
@@ -524,7 +530,7 @@ sub key_press_normal {
             $self->move_cursor($event, $line->end + 1, 0);
          }
       }
-   } elsif ($string eq "b") {
+   } elsif ($string eq $PREVIOUS_WORD_KEY) {
       for(my $ii = 0; $ii < $self->{repeat}; $ii++){
          my ($lnum, $cnum) = $self->screen_cur();
          my $line = $self->line($lnum);
